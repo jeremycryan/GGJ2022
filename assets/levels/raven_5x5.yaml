@@ -1,0 +1,11 @@
+inventory:
+  PIGEON: 5
+  RAVEN: 3
+width: 5
+height: 5
+principal:
+  - Ah! It looks like the ravens have come to class.
+  - |
+    In many cultures, the raven is a symbol of death, but that's not really fair. They're actually
+    the life... of the party!
+  - Ravens count as a single bird, but need room to dance.

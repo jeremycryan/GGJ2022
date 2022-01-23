@@ -1,9 +1,14 @@
 inventory:
-  PIGEON: 6
-  TURTLE: 10
-width: 5
-height: 5
-rocks:
-  - [0, 0]
-  - [3, 2]
-  - [1, 1]
+  PIGEON: 20
+  TURTLE: 20
+  RAVEN: 20
+width: 10
+height: 10
+principal:
+  - That's all the levels!
+  - This game was made in 48 hours for the Global Game Jam 2022, including all art, sounds, and music.
+  - |
+    I used the fonts Marediv, Microsoft Sans Serif, A Goblin Appears, and Segoe UI. The game
+    was made in PyGame, the art in Paint.NET, and the music with Audacity and a Casio keyboard.
+  - This game's source code is online at github.com/jeremycryan/GGJ2022.
+  - Thanks for playing!

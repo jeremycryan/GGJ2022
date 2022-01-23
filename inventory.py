@@ -96,6 +96,8 @@ class Inventory:
     def select_card(self, card):
         if self.selected_card is not None:
             self.cards[self.selected_card].select(False)
+        if self.selected_card is not card and self.selected_card is not None:
+            self.level.game.change_bird_type.play()
         self.selected_card = card
         self.cards[self.selected_card].select(True)
 

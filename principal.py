@@ -4,10 +4,12 @@ import constants as c
 
 
 class Principal:
-    def __init__(self, lines):
+    def __init__(self, lines, game):
         self.lines = lines
         self.current_line = 0
         self.time_on_current_line = 0
+        self.game = game
+        self.age = 0
 
         self.gradient = pygame.image.load(c.image_path("gradient_2.png"))
         self.gradient = pygame.transform.scale(self.gradient, (c.WINDOW_WIDTH, self.gradient.get_height()))
@@ -19,8 +21,20 @@ class Principal:
         self.font = pygame.font.Font(c.font_path("micross.ttf"), 20)
         self.done = False
 
+        self.since_tweet = 0
+        self.at = 1
+
 
     def update(self, dt, events):
+        self.age += dt
+        if self.age < self.at:
+            return
+        self.since_tweet += dt
+        if self.lines and int(self.time_on_current_line * c.CHARS_PER_SECOND) < len(self.lines[self.current_line]):
+            if self. since_tweet > 0.12:
+                self.game.talk_sound.play()
+                self.since_tweet -= 0.12
+
         self.time_on_current_line += dt
 
         for event in events:
@@ -29,19 +43,30 @@ class Principal:
                     if not self.done and self.time_on_current_line * c.CHARS_PER_SECOND > len(self.lines[self.current_line]):
                         self.time_on_current_line = 0
                         if len(self.lines) > 1:
+                            self.since_tweet = 0
                             self.lines.pop(0)
                         else:
                             self.lines = []
                             self.done = True
-
+                        self.game.advance_dialogue_noise.play()
 
     def draw(self, surface, offset=(0, 0)):
         yoff = self.done * (self.time_on_current_line**2 * 2500 - self.time_on_current_line * 300)
         pxoff = (self.time_on_current_line * 400) * self.done
         pyoff = (self.time_on_current_line**2 * 2400 - self.time_on_current_line * 1200) * self.done
         pspin = self.done * self.time_on_current_line * 600
+
+
+        if self.age < self.at:
+            youngness = (1 - self.age/self.at)
+            yoff = 300 * youngness**2
+            pxoff = -300 * youngness**2
+            pyoff = -300 * youngness**2
+            pspin = 60 * youngness**2
+
         psurf = self.principal.copy()
         psurf = pygame.transform.rotate(psurf, pspin)
+
 
         surface.blit(self.gradient, (0, c.WINDOW_HEIGHT - self.gradient.get_height() + 50 + yoff), special_flags=pygame.BLEND_MULT)
         surface.blit(self.label, (-50 -yoff * 3, c.WINDOW_HEIGHT - 200), special_flags=pygame.BLEND_ADD)

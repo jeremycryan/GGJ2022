@@ -78,6 +78,8 @@ class Grid:
         """ Gets the birds in a cell and clears them. """
         birds = self.cells[y][x].flush_movable()
         self.flushing_birds += birds
+        if birds:
+            self.level.game.pick_up_bird_sound.play()
         return birds
 
     def update(self, dt, events):
@@ -100,7 +102,8 @@ class Grid:
                             self.level.inventory.add_birds(self.flush_birds_at(x, y))
                             continue
                         if self.can_place_at(x, y, possible_bird):
-                            self.add_bird(x, y, self.level.inventory.pop_selected_bird())
+                            if possible_bird.can_place(self, x, y):
+                                self.add_bird(x, y, self.level.inventory.pop_selected_bird())
                         else:
                             self.level.inventory.add_birds(self.flush_birds_at(x, y))
         for bird in self.flushing_birds[:]:
@@ -111,9 +114,11 @@ class Grid:
     def check_for_level_complete(self):
         bad_cells = self.check_collisions()
         if bad_cells:
+            self.level.game.try_again_noise.play()
             for cell in bad_cells:
                 for bird in cell.get_birds():
                     bird.flash_red()
+
         else:
             if self.level.inventory.empty():
                 self.level.complete()
@@ -162,6 +167,11 @@ class Grid:
 
                 for bird in cell.get_birds():
                     bird.draw(surface, (x_draw, y_draw))
+                    if bird.key == Seagull.key:
+                        if bird.angery:
+                            bird.angery = False
+                            #self.particles.append(AngerParticle((x_draw - c.LEVEL_RECTANGLE_CENTER[0], y_draw - c.LEVEL_RECTANGLE_CENTER[1])))
+
 
         for bird in self.flushing_birds:
             bird.draw(surface, bird.most_recent_draw)

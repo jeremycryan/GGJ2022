@@ -63,3 +63,27 @@ class PigeonPlaceParticle(Particle):
         if self.age < 0:
             return
         super().draw(surface, offset)
+
+class AngerParticle(Particle):
+    def __init__(self, position):
+        duration = random.random() * 0.5 + 0.5
+        self.starting_radius = 5 + 3*random.random()
+        vx = random.random() * 100 * random.choice((-1, 1))
+        vy = random.random() * 125 * random.choice((-1,))
+        x, y = position
+        x += vx/abs(vx) * c.TILE_WIDTH//2
+        y += vy/abs(vy) * c.TILE_HEIGHT//2
+        super().__init__(position=(x, y), velocity=(vx, vy), duration=duration)
+        self.age = -0.1
+
+    def update(self, dt, events):
+        self.radius = self.starting_radius * (1 - (self.through())**2)
+        self.vx *= 0.1**dt
+        self.vy *= 0.1**dt
+        self.color = (200 - 64*self.through(),)*3
+        super().update(dt, events)
+
+    def draw(self, surface, offset=(0, 0)):
+        if self.age < 0:
+            return
+        super().draw(surface, offset)

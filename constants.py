@@ -27,11 +27,18 @@ CARD_SIZE = CARD_WIDTH, CARD_HEIGHT
 
 CHARS_PER_SECOND = 40
 
+
 def image_path(rel):
     return os.path.join("assets", "images", rel)
+
 
 def level_path(rel):
     return os.path.join("assets", "levels", rel)
 
+
 def font_path(rel):
     return os.path.join("assets", "fonts", rel)
+
+
+def sound_path(rel):
+    return os.path.join("assets", "sounds", rel)

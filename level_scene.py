@@ -30,7 +30,7 @@ class LevelScene:
         grid = Grid(data["width"], data["height"], self)
         self.inventory.set_starting_birds(data["inventory"])
         if "principal" in data:
-            self.principal = Principal(data["principal"])
+            self.principal = Principal(data["principal"], self.game)
             if self.game.seen_rocks and self.level_path in ["circle_4x4.yaml", "fish_4x4.yaml", "hourglass_4x4.yaml", "stairs_4x4.yaml"]:
                 self.principal = None
         if "rocks" in data:
@@ -49,6 +49,7 @@ class LevelScene:
 
     def complete(self):
         self.level_finished = True
+        self.game.victory_sound.play()
 
     def update(self, dt, events):
         conditional_events = events
