@@ -83,7 +83,7 @@ class LevelScene:
         x = offset[0] + c.LEVEL_RECTANGLE_CENTER[0]
         y = offset[1] + c.LEVEL_RECTANGLE_CENTER[1]
         self.grid.draw(surface, offset=(x + self.camera_x, y))
-        self.inventory.draw(surface, offset=(offset[0] + self.camera_x, offset[1]))
+        self.inventory.draw(surface, offset=(offset[0] + self.camera_x/3, offset[1]))
 
         if self.principal:
             self.principal.draw(surface, offset=offset)

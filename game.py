@@ -33,16 +33,19 @@ class Game:
     def main(self):
         self.clock.tick(c.FPS)
         levels = [
-            "basic_2x2.yaml",
-            "basic_3x3.yaml",
-            "basic_4x4.yaml",
-            "stairs_4x4.yaml",
-            "circle_4x4.yaml",
-            "hourglass_4x4.yaml",
-            "fish_4x4.yaml",
-            "turtles_3x3.yaml",
-            "turtles_4x4.yaml",
+            #"basic_2x2.yaml",
+            #"basic_3x3.yaml",
+            #"basic_4x4.yaml",
+            #"stairs_4x4.yaml",
+            #"circle_4x4.yaml",
+            #"hourglass_4x4.yaml",
+            #"fish_4x4.yaml",
+            #"turtles_3x3.yaml",
+            #"turtles_4x4.yaml",
             #"turtles_5x5.yaml",
+            "basic_5x5.yaml",
+            
+            "basic_6x6.yaml",
             #"test_level.yaml",
         ]
         level = LevelScene(self, levels.pop(0))
