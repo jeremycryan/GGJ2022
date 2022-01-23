@@ -50,12 +50,16 @@ class Grid:
         self.max_birds_in_line = 2
         self.draw_offset = (0, 0)
         self.particles = []
+        self.age = 0
 
         self.grid_surf = pygame.Surface(c.TILE_SIZE)
         self.grid_surf.fill((0, 0, 0))
         self.grid_surf.set_colorkey((0, 0, 0))
-        pygame.draw.rect(self.grid_surf, (255, 255, 255), (4, 4, c.TILE_WIDTH-8, c.TILE_HEIGHT-8))
+        pygame.draw.rect(self.grid_surf, (255, 255, 255), (12, 12, c.TILE_WIDTH-24, c.TILE_HEIGHT-24))
         self.grid_surf.set_alpha(50)
+        self.flushing_birds = []
+
+        self.controls_enabled = False
 
     def get_birds_at(self, x, y):
         return self.cells[y][x].get_birds()
@@ -72,9 +76,12 @@ class Grid:
 
     def flush_birds_at(self, x, y):
         """ Gets the birds in a cell and clears them. """
-        return self.cells[y][x].flush_birds()
+        birds = self.cells[y][x].flush_movable()
+        self.flushing_birds += birds
+        return birds
 
     def update(self, dt, events):
+        self.age += dt
         x, y = self.mouse_position_to_grid_position(pygame.mouse.get_pos())
         for particle in self.particles[:]:
             particle.update(dt, events)
@@ -84,23 +91,32 @@ class Grid:
             cell.update(dt, events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.controls_enabled:
+                    continue
                 if event.button == 1:
-                    possible_bird = Bird(self.level.game)
                     if self.is_valid_xy(x, y):
+                        possible_bird = self.level.inventory.peek_selected_bird()
+                        if possible_bird is None:
+                            self.level.inventory.add_birds(self.flush_birds_at(x, y))
+                            continue
                         if self.can_place_at(x, y, possible_bird):
-                            self.add_bird(x, y, possible_bird)
+                            self.add_bird(x, y, self.level.inventory.pop_selected_bird())
                         else:
-                            self.cells[y][x].flush_movable()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    bad_cells = self.check_collisions()
-                    if bad_cells:
-                        for cell in bad_cells:
-                            for bird in cell.get_birds():
-                                bird.flash_red()
-                    else:
-                        self.level.complete()
+                            self.level.inventory.add_birds(self.flush_birds_at(x, y))
+        for bird in self.flushing_birds[:]:
+            bird.scale = bird.scale - 10*dt
+            if bird.scale < 0:
+                self.flushing_birds.remove(bird)
 
+    def check_for_level_complete(self):
+        bad_cells = self.check_collisions()
+        if bad_cells:
+            for cell in bad_cells:
+                for bird in cell.get_birds():
+                    bird.flash_red()
+        else:
+            if self.level.inventory.empty():
+                self.level.complete()
 
     def enumerate_cells(self):
         for row in self.cells:
@@ -125,6 +141,11 @@ class Grid:
                 # draw grid
                 x_offset = x_draw - c.TILE_WIDTH//2
                 y_offset = y_draw - c.TILE_HEIGHT//2
+
+                period = (x_idx * 0.5 + y_idx * 0.7) * math.pi * 0.95 + self.age * 5
+                x_offset += 1.5 * math.cos(period * 0.8)
+                y_offset += 1.5 * math.sin(period)
+
                 surface.blit(self.grid_surf, (x_offset, y_offset))
 
         for particle in self.particles:
@@ -135,8 +156,15 @@ class Grid:
             for x_idx, cell in enumerate(row):
                 x_draw = x0 + x_idx * c.TILE_WIDTH + c.TILE_WIDTH // 2
 
+                period = (x_idx * 0.5 + y_idx * 0.7) * math.pi * 0.95 + self.age * 5
+                x_draw += 1.5 * math.cos(period * 0.8)
+                y_draw += 1.5 * math.sin(period)
+
                 for bird in cell.get_birds():
                     bird.draw(surface, (x_draw, y_draw))
+
+        for bird in self.flushing_birds:
+            bird.draw(surface, bird.most_recent_draw)
 
     def mouse_position_to_grid_position(self, mpos):
         x, y = mpos
@@ -210,3 +238,63 @@ class Grid:
                 return list(cells)
 
         return []
+
+    def get_4x4_type(self):
+        if self.width != 4 or self.height != 4:
+            return None
+        circle_birds = [
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+        ]
+        stair_birds = [
+            [1, 1, 0, 0],
+            [0, 0, 1, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 1],
+        ]
+        fish_birds = [
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+        ]
+        hourglass_birds = [
+            [0, 1, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 1],
+            [1, 0, 1, 0],
+        ]
+        for shape in circle_birds, stair_birds, fish_birds, hourglass_birds:
+            main = shape.copy()
+            flipped = [row[::-1] for row in shape]
+            for flip in main, flipped:
+                main = flip.copy()
+                cw = [[flip[x][3-y] for x in range(4)] for y in range(4)]
+                cw2 = [[flip[3-y][3-x] for x in range(4)] for y in range(4)]
+                cw3 = [[flip[3-x][y] for x in range(4)] for y in range(4)]
+                for rot in main, cw, cw2, cw3:
+                    not_it = False
+                    for x, row in enumerate(rot):
+                        for y, val in enumerate(row):
+                            has_birds = len(self.get_birds_at(x, y)) > 0
+                            if has_birds == val:
+                                continue
+                            else:
+                                not_it = True
+                                break
+                        if not_it:
+                            break
+                    if not_it:
+                        continue
+                    else:
+                        if shape == circle_birds:
+                            return "circle_4x4.yaml"
+                        if shape == fish_birds:
+                            return "fish_4x4.yaml"
+                        if shape == hourglass_birds:
+                            return "hourglass_4x4.yaml"
+                        if shape == stair_birds:
+                            return "stairs_4x4.yaml"
+        return None

@@ -1,0 +1,16 @@
+inventory:
+  PIGEON: 6
+width: 4
+height: 4
+rocks:
+  - [1, 2]
+  - [1, 1]
+principal:
+  - Impressive! With your skills, we'll have you out shitting on cars in no time.
+  - |
+    Now some people think rock doves and pigeons are the same thing, but that's actually a misconception.
+    Rock doves are made of rocks!
+  - |
+    Rocks aren't easy to move, so you'll just have to leave the rock doves alone and position the
+    other birds around them.
+  - Good luck!

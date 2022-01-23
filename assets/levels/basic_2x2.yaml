@@ -1,0 +1,12 @@
+inventory:
+  PIGEON: 4
+width: 2
+height: 2
+principal:
+  - |
+    Welcome back to birding school! We're resuming bird lessons after a refreshing winter beak, and are
+    happy to welcome back our talon-ted students.
+  - |
+    Today, we'll be practicing bird formations. The geese have already perfected the flying V formation,
+    so we'll have to step up our game if we're going to maintain the pigeon's good reputation.
+  - Use the mouse to place birds on the grid.

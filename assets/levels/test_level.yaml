@@ -1,0 +1,9 @@
+inventory:
+  PIGEON: 6
+  TURTLE: 10
+width: 5
+height: 5
+rocks:
+  - [0, 0]
+  - [3, 2]
+  - [1, 1]

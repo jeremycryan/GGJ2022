@@ -17,6 +17,7 @@ class Game:
 
         self.since_shake = 0
         self.shake_amt = 0
+        self.seen_rocks = False
 
         self.main()
 
@@ -31,9 +32,21 @@ class Game:
 
     def main(self):
         self.clock.tick(c.FPS)
-        level = LevelScene(self)
+        levels = [
+            "basic_2x2.yaml",
+            "basic_3x3.yaml",
+            "basic_4x4.yaml",
+            "stairs_4x4.yaml",
+            "circle_4x4.yaml",
+            "hourglass_4x4.yaml",
+            "fish_4x4.yaml",
+            "turtles_3x3.yaml",
+            "turtles_4x4.yaml",
+            #"turtles_5x5.yaml",
+            #"test_level.yaml",
+        ]
+        level = LevelScene(self, levels.pop(0))
         while True:
-            self.screen.fill((113, 20, 147))
             dt = self.clock.tick(c.FPS)/1000
             dt, events = self.get_events(dt)
 
@@ -41,7 +54,12 @@ class Game:
             level.draw(self.screen, self.get_shake_offset())
 
             if level.done:
-                level = level.next_level(self)
+                if level.level_path == "basic_4x4.yaml":
+                    solved = level.grid.get_4x4_type()
+                    if solved and solved in levels:
+                        levels.remove(solved)
+
+                level = LevelScene(self, levels.pop(0))
 
             pygame.display.flip()
 

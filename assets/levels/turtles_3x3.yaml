@@ -1,0 +1,11 @@
+inventory:
+  PIGEON: 3
+  TURTLE: 6
+width: 3
+height: 3
+principal:
+  - It looks like we have some new students for this lesson. Turtle doves!
+  - |
+    Turtle doves only count as half a bird (since they're half turtle). You can place four of them in a line,
+    or two in line with a pigeon.
+  - Good luck!
